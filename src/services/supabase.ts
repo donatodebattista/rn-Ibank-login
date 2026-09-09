@@ -58,6 +58,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: customStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false, // Handled explicitly via expo-linking in React Native
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });
