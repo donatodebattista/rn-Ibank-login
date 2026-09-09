@@ -253,5 +253,3 @@ Total tests: 24 | Passed: 24 | Failed: 0
 - **Almacenamiento Seguro SSR:** El cliente Supabase cuenta con un adaptador para evitar errores de tipo `window is not defined` durante la compilación estática o ejecución en entornos Node.js.
 
 ---
-
-Desarrollado con ❤️ para **iBank**.
