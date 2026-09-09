@@ -22,6 +22,7 @@ interface AuthContextType {
   signUp: (email: string, pass: string, name: string) => Promise<SignUpResult>;
   resendConfirmation: (email: string) => Promise<{ success: boolean; error?: string }>;
   resetPassword: (email: string) => Promise<ResetPasswordResult>;
+  verifyRecoveryCode: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
   updatePassword: (password: string) => Promise<UpdatePasswordResult>;
   signOut: () => Promise<void>;
 }
@@ -83,9 +84,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const handleDeepLink = async (url: string | null) => {
       if (!url) return;
       logger.info(`Deep link received: ${url}`);
-      if (url.includes('recovery') || url.includes('change-password') || url.includes('type=recovery')) {
-        setIsRecoveryFlow(true);
-        await authService.createSessionFromUrl(url);
+      if (
+        url.includes('recovery') ||
+        url.includes('change-password') ||
+        url.includes('type=recovery') ||
+        url.includes('token_hash') ||
+        url.includes('code=')
+      ) {
+        const sessionCreated = await authService.createSessionFromUrl(url);
+        if (sessionCreated) {
+          setIsRecoveryFlow(true);
+        }
       }
     };
 
@@ -113,6 +122,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resetPassword = async (email: string): Promise<ResetPasswordResult> => {
     return authService.resetPassword(email);
+  };
+
+  const verifyRecoveryCode = async (email: string, code: string) => {
+    const result = await authService.verifyRecoveryCode(email, code);
+    if (result.success) {
+      setIsRecoveryFlow(true);
+    }
+    return result;
   };
 
   const updatePassword = async (password: string): Promise<UpdatePasswordResult> => {
@@ -144,6 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       resendConfirmation,
       resetPassword,
+      verifyRecoveryCode,
       updatePassword,
       signOut,
     }),
